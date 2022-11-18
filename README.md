@@ -41,3 +41,16 @@ Data can be streamed in real time or ingested in batches. In real-time data inge
 
 ### ETL Pipeline
 It simply means we have some source, driver, and destination. Where we perform Extract, Transform and Load operations.
+
+### Data warehose vs Data lake
+Data lakes and data warehouses are both widely used for storing big data, but they are not interchangeable terms. A data lake is a vast pool of raw data, the purpose for which is not yet defined. A data warehouse is a repository for structured, filtered data that has already been processed for a specific purpose.
+![Vs](![image](https://user-images.githubusercontent.com/55645997/202674371-4c5549cd-eac9-4171-8edc-7036659129c7.png)
+
+### Data warehouse vs Data Mart
+The main difference between Data warehouse and Data mart is that, Data Warehouse is the type of database which is data-oriented in nature. while, Data Mart is the type of database which is the project-oriented in nature. The other difference between these two the Data warehouse and the Data mart is that, Data warehouse is large in scope where as Data mart is limited in scope. So, multiple data mart can attached to one data warehouse.
+![Vs](https://qph.cf2.quoracdn.net/main-qimg-29ed6d230d0c6822b7cfa8ada40f59f2-pjlq)
+
+### Delta lake vs Data lake
+The Delta Lake design integrates with Apache Spark APIs and sits above your current Data Lake. Delta Lake supports scalable metadata handling, ACID transactions, and the unification of batch and streaming data processing. It utilises your current data lake and is completely compatible with the Apache Spark APIs.
+**or**
+Delta Lake is an open-source storage layer designed to run on top of an existing data lake and improve its reliability, security, and performance. It supports ACID transactions, scalable metadata, unified streaming, and batch data processing.
