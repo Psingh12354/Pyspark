@@ -31,3 +31,13 @@ For graphs and graphical computations, Spark has its own Graph Computation Engin
 
 ### Spark SQL
 The Spark SQL is built on the top of Spark Core. It provides support for structured data.
+
+### Data Ingestion
+Data ingestion is the process of obtaining and importing data for immediate use or storage in a database. To ingest something is to take something in or absorb something.
+- **Batch processing** In batch processing, the ingestion layer collects data from sources incrementally and sends batches to the application or system where the data is to be used or stored. Data can be grouped based on a schedule or criteria, such as if certain conditions are triggered. This approach is good for applications that don't require real-time data. It is typically less expensive.
+- **Real-time processing** This type of data ingestion is also referred to as stream processing. Data is not grouped in any way in real-time processing. Instead, each piece of data is loaded as soon as it is recognized by the ingestion layer and is processed as an individual object. Applications that require real-time data should use this approach.
+
+Data can be streamed in real time or ingested in batches. In real-time data ingestion, each data item is imported as the source emits it. 
+
+### ETL Pipeline
+It simply means we have some source, driver, and destination. Where we perform Extract, Transform and Load operations.
