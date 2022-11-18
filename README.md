@@ -52,5 +52,7 @@ The main difference between Data warehouse and Data mart is that, Data Warehouse
 
 ### Delta lake vs Data lake
 The Delta Lake design integrates with Apache Spark APIs and sits above your current Data Lake. Delta Lake supports scalable metadata handling, ACID transactions, and the unification of batch and streaming data processing. It utilises your current data lake and is completely compatible with the Apache Spark APIs.
+
 **or**
+
 Delta Lake is an open-source storage layer designed to run on top of an existing data lake and improve its reliability, security, and performance. It supports ACID transactions, scalable metadata, unified streaming, and batch data processing.
