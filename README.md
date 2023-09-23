@@ -17,6 +17,11 @@ Apache Spark is written in Scala programming language. To support Python with Sp
 ![Spark Architecture](https://i0.wp.com/0x0fff.com/wp-content/uploads/2015/03/Spark-Architecture-Official.png)
 ![Spark Component](https://cdn.analyticsvidhya.com/wp-content/uploads/2020/11/spark_Architecture.png)
 
+### Windows Function
+
+- Windows vs GroupBy-: groupBy is primarily used for summarizing data by groups, while window is used for more advanced analytics and calculations that involve specifying a window or range of rows within each group. You often use window when you need to calculate values that depend on the order of rows within each group or when you need cumulative or rolling aggregations.
+
+
 ## Spark Components
 
 ### Spark Streaming
