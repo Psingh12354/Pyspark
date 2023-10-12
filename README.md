@@ -8,6 +8,15 @@ Apache Spark is written in Scala programming language. To support Python with Sp
 - 10x faster is disk
 - Use Ram insted of local drive which increase the processing
 
+### Databricks Cluster
+
+A **Databricks Cluster** is a combination of computation resources and configurations on which you can run jobs and notebooks. Some of the workloads that you can run on a Databricks Cluster include Streaming Analytics, ETL Pipelines, Machine Learning, and Ad-hoc analytics. 
+
+The workloads are run as commands in a notebook or as automated tasks. There are two types of Databricks Clusters:
+
+- **All-purpose Clusters:** These types of Clusters are used to analyze data collaboratively via interactive notebooks. They are created using the CLI, UI, or REST API. An All-purpose Cluster can be terminated and restarted manually. They can also be shared by multiple users to do collaborative tasks interactively. 
+- **Job Clusters:** These types of clusters are used for running fast and robust automated tasks. They are created when you run a job on your new Job Cluster and terminate the Cluster once the job ends. A Job Cluster cannot be restarted.
+
 ### Operation on RDD
 
 - **Transformation-:** It create a new rdd ex: map, flatMap, filter, groupby etc.
