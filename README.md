@@ -17,6 +17,10 @@ The workloads are run as commands in a notebook or as automated tasks. There are
 - **All-purpose Clusters:** These types of Clusters are used to analyze data collaboratively via interactive notebooks. They are created using the CLI, UI, or REST API. An All-purpose Cluster can be terminated and restarted manually. They can also be shared by multiple users to do collaborative tasks interactively. 
 - **Job Clusters:** These types of clusters are used for running fast and robust automated tasks. They are created when you run a job on your new Job Cluster and terminate the Cluster once the job ends. A Job Cluster cannot be restarted.
 
+### Driver Node vs Worker Node
+
+The driver and worker nodes can have different instance types, but by default they are the same. A driver node runs the main function and executes various parallel operations on the worker nodes. The worker nodes read and write from and to the data sources.
+
 ### Operation on RDD
 
 - **Transformation-:** It create a new rdd ex: map, flatMap, filter, groupby etc.
