@@ -78,3 +78,12 @@ Delta Lake is an open-source storage layer designed to run on top of an existing
 ### Data Integration
 
 Data integration is the process of combining data from different sources into a single, unified view. Integration begins with the ingestion process, and includes steps such as cleansing, ETL mapping, and transformation. Data integration ultimately enables analytics tools to produce effective, actionable business intelligence.
+
+### Version control
+
+It help us to restore our data which we have either deleted or lost. We can use below sql query to see prev version or restore the previous data.
+
+- To get the list of version ```describe history employee1```
+- To call the version ```select * from employee1@v1``
+- To delete all recors ```delete from employee1```
+- To restore the table ```RESTORE TABLE employee1 to version as of 1``` remember this code will restore deleted value if and only if schema is preserved not worked wirh drop.
