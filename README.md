@@ -87,3 +87,7 @@ It help us to restore our data which we have either deleted or lost. We can use 
 - To call the version ```select * from employee1@v1``
 - To delete all recors ```delete from employee1```
 - To restore the table ```RESTORE TABLE employee1 to version as of 1``` remember this code will restore deleted value if and only if schema is preserved not worked wirh drop.
+
+### View 
+
+A view is a read-only object composed from one or more tables and views in a metastore. It resides in the third layer of Unity Catalog’s three-level namespace. A view can be created from tables and other views in multiple schemas and catalogs. Temp view doesn't exist in different sparksession and if you restart temp view will lost while global temp view exist in multiple session and will be persisted.
