@@ -1,93 +1,155 @@
-# Pyspark
-Apache Spark is written in Scala programming language. To support Python with Spark, Apache Spark community released a tool, PySpark. Using PySpark, you can work with RDDs in Python programming language also. It is because of a library called Py4j that they are able to achieve this.
+# PySpark
 
-### Some key points
-- Pyspark is the combo of python spark
-- Scalable
-- 100x faster than hadoop mapreduce
-- 10x faster is disk
-- Use Ram insted of local drive which increase the processing
+Apache Spark is written in Scala programming language. To support Python with Spark, Apache Spark community released a tool, **PySpark**. Using PySpark, you can work with RDDs in Python programming language also. It is because of a library called **Py4j** that they are able to achieve this.
 
-### Databricks Cluster
+## 🔹 Key Features
+- PySpark is a combination of Python and Apache Spark.
+- Highly scalable and supports parallel processing.
+- **100x** faster than Hadoop MapReduce.
+- Uses **RAM instead of disk**, which significantly increases processing speed.
+- Supports real-time data processing.
 
-A **Databricks Cluster** is a combination of computation resources and configurations on which you can run jobs and notebooks. Some of the workloads that you can run on a Databricks Cluster include Streaming Analytics, ETL Pipelines, Machine Learning, and Ad-hoc analytics. 
+## 🚀 Getting Started with PySpark
+### 🔹 Installation
+To install PySpark, run the following command:
+```bash
+pip install pyspark
+```
 
-The workloads are run as commands in a notebook or as automated tasks. There are two types of Databricks Clusters:
+### 🔹 Initialize SparkSession
+```python
+from pyspark.sql import SparkSession
 
-- **All-purpose Clusters:** These types of Clusters are used to analyze data collaboratively via interactive notebooks. They are created using the CLI, UI, or REST API. An All-purpose Cluster can be terminated and restarted manually. They can also be shared by multiple users to do collaborative tasks interactively. 
-- **Job Clusters:** These types of clusters are used for running fast and robust automated tasks. They are created when you run a job on your new Job Cluster and terminate the Cluster once the job ends. A Job Cluster cannot be restarted.
+spark = SparkSession.builder \
+    .appName("PySpark Example") \
+    .getOrCreate()
+```
 
-### Driver Node vs Worker Node
+### 🔹 Creating an RDD
+```python
+data = ["Spark", "is", "awesome"]
+rdd = spark.sparkContext.parallelize(data)
+print(rdd.collect())
+```
 
-The driver and worker nodes can have different instance types, but by default they are the same. A driver node runs the main function and executes various parallel operations on the worker nodes. The worker nodes read and write from and to the data sources.
+## ⚙️ Databricks Cluster
+A **Databricks Cluster** is a combination of computation resources and configurations on which you can run jobs and notebooks.
 
-### Operation on RDD
+### 🔹 Types of Databricks Clusters
+- **All-purpose Clusters:** Used for collaborative analysis in notebooks.
+- **Job Clusters:** Created for running automated jobs and terminated after execution.
 
-- **Transformation-:** It create a new rdd ex: map, flatMap, filter, groupby etc.
--  **Actions-:** It is to perform ceratin computation like count, collect, take, first etc it doesn't create a new rdd
+## 🖥️ Driver Node vs Worker Node
+| Feature  | Driver Node | Worker Node |
+|----------|------------|-------------|
+| Function | Runs the main function and schedules tasks. | Executes tasks assigned by the driver. |
+| Storage  | Stores metadata, application states. | Reads/Writes from data sources. |
 
-![Mapreduce vs Spark](https://data-flair.training/blogs/wp-content/uploads/sites/2/2016/09/Hadoop-MapReduce-vs-Apache-Spark.jpg)
-![Spark Architecture](https://i0.wp.com/0x0fff.com/wp-content/uploads/2015/03/Spark-Architecture-Official.png)
-![Spark Component](https://cdn.analyticsvidhya.com/wp-content/uploads/2020/11/spark_Architecture.png)
+## 🔄 RDD Operations
+### 🔹 Transformations
+- **map()** – Applies function to each element
+- **flatMap()** – Similar to map, but flattens results
+- **filter()** – Filters elements based on condition
+- **groupBy()** – Groups elements based on key
 
-### Windows Function
+**Example:**
+```python
+data = [1, 2, 3, 4, 5]
+rdd = spark.sparkContext.parallelize(data)
+squared_rdd = rdd.map(lambda x: x*x)
+print(squared_rdd.collect())  # Output: [1, 4, 9, 16, 25]
+```
 
-- Windows vs GroupBy-: groupBy is primarily used for summarizing data by groups, while window is used for more advanced analytics and calculations that involve specifying a window or range of rows within each group. You often use window when you need to calculate values that depend on the order of rows within each group or when you need cumulative or rolling aggregations.
+### 🔹 Actions
+- **count()** – Returns number of elements
+- **collect()** – Returns all elements
+- **take(n)** – Returns first `n` elements
 
+## 📊 Spark Components
+### 🔹 Spark Streaming
+Used for processing real-time streaming data.
+**Example:**
+```python
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
 
-## Spark Components
+schema = StructType([StructField("id", IntegerType(), True)])
+df = spark.readStream.schema(schema).json("path/to/stream")
+df.writeStream.format("console").start().awaitTermination()
+```
 
-### Spark Streaming
-Spark Streaming is one of those unique features, which have empowered Spark to potentially take the role of Apache Storm. Spark Streaming mainly enables you to create analytical and interactive applications for live streaming data. You can do the streaming of the data and then, Spark can run its operations from the streamed data itself.
-- real time object detection are the example
+### 🔹 MLlib
+A machine learning library in Spark.
+**Example:**
+```python
+from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.feature import VectorAssembler
 
-### MLLib
-MLLib is a machine learning library like Mahout. It is built on top of Spark, and has the provision to support many machine learning algorithms. But the point difference with Mahout is that it runs almost 100 times faster than MapReduce. It is not yet as enriched as Mahout, but it is coming up pretty well, even though it is still in the initial stage of growth.
+# Sample data
+data = [(0, 1.0, 2.0), (1, 2.0, 3.0)]
+df = spark.createDataFrame(data, ["label", "feature1", "feature2"])
+assembler = VectorAssembler(inputCols=["feature1", "feature2"], outputCol="features")
+df = assembler.transform(df)
+lr = LogisticRegression(featuresCol="features", labelCol="label")
+model = lr.fit(df)
+```
 
-### GraphX
-For graphs and graphical computations, Spark has its own Graph Computation Engine, called GraphX. It is similar to other widely used graph processing tools or databases, like Neo4j, Girafe, and many other distributed graph databases.
+### 🔹 Spark SQL
+Allows querying structured data using SQL.
+**Example:**
+```python
+df = spark.read.csv("data.csv", header=True, inferSchema=True)
+df.createOrReplaceTempView("table")
+spark.sql("SELECT * FROM table WHERE age > 30").show()
+```
 
-### Spark SQL
-The Spark SQL is built on the top of Spark Core. It provides support for structured data.
+## 🛠️ Data Ingestion
+### 🔹 Batch Processing vs Real-time Processing
+| Type | Description |
+|------|-------------|
+| **Batch Processing** | Collects and processes data in groups. Good for large datasets. |
+| **Real-time Processing** | Processes data as it arrives. Used in live analytics. |
 
-### Data Ingestion
-Data ingestion is the process of obtaining and importing data for immediate use or storage in a database. To ingest something is to take something in or absorb something.
-- **Batch processing** In batch processing, the ingestion layer collects data from sources incrementally and sends batches to the application or system where the data is to be used or stored. Data can be grouped based on a schedule or criteria, such as if certain conditions are triggered. This approach is good for applications that don't require real-time data. It is typically less expensive.
-- **Real-time processing** This type of data ingestion is also referred to as stream processing. Data is not grouped in any way in real-time processing. Instead, each piece of data is loaded as soon as it is recognized by the ingestion layer and is processed as an individual object. Applications that require real-time data should use this approach.
+## ⚡ ETL Pipeline
+A data pipeline performing **Extract, Transform, Load** operations.
+**Example:**
+```python
+df = spark.read.csv("input.csv", header=True)
+df = df.withColumn("new_col", df["existing_col"] * 10)
+df.write.format("parquet").save("output.parquet")
+```
 
-Data can be streamed in real time or ingested in batches. In real-time data ingestion, each data item is imported as the source emits it. 
+## 🏗️ Data Warehouse vs Data Lake
+| Feature | Data Warehouse | Data Lake |
+|---------|---------------|-----------|
+| Data Type | Structured | Structured, Semi-structured, Unstructured |
+| Processing | Batch Processing | Batch & Real-time Processing |
 
-### ETL Pipeline
-It simply means we have some source, driver, and destination. Where we perform Extract, Transform and Load operations.
+## 🔄 Version Control in Delta Lake
+### 🔹 Restore previous data version
+```sql
+DESCRIBE HISTORY employee1;  -- List versions
+SELECT * FROM employee1@v1;  -- View version 1
+RESTORE TABLE employee1 TO VERSION AS OF 1;  -- Restore version 1
+```
 
-### Data warehose vs Data lake
-Data lakes and data warehouses are both widely used for storing big data, but they are not interchangeable terms. A data lake is a vast pool of raw data, the purpose for which is not yet defined. A data warehouse is a repository for structured, filtered data that has already been processed for a specific purpose.
-![Vs](![image](https://user-images.githubusercontent.com/55645997/202674371-4c5549cd-eac9-4171-8edc-7036659129c7.png)
+## 📑 View in Spark
+A **view** is a read-only logical table based on the result set of a query.
+- **Temporary View** – Exists only in the current session.
+- **Global View** – Exists across multiple sessions.
 
-### Data warehouse vs Data Mart
-The main difference between Data warehouse and Data mart is that, Data Warehouse is the type of database which is data-oriented in nature. while, Data Mart is the type of database which is the project-oriented in nature. The other difference between these two the Data warehouse and the Data mart is that, Data warehouse is large in scope where as Data mart is limited in scope. So, multiple data mart can attached to one data warehouse.
-![Vs](https://qph.cf2.quoracdn.net/main-qimg-29ed6d230d0c6822b7cfa8ada40f59f2-pjlq)
+**Example:**
+```python
+df.createOrReplaceTempView("temp_view")
+df.createGlobalTempView("global_view")
+```
 
-### Delta lake vs Data lake
-The Delta Lake design integrates with Apache Spark APIs and sits above your current Data Lake. Delta Lake supports scalable metadata handling, ACID transactions, and the unification of batch and streaming data processing. It utilises your current data lake and is completely compatible with the Apache Spark APIs. In Delta lake ACID property if we try to insert/update anything it will performm 100% or no change.
+## 🔍 Window Functions in PySpark
+### 🔹 Example of Row Number
+```python
+from pyspark.sql.window import Window
+from pyspark.sql.functions import row_number
 
-**or**
-
-Delta Lake is an open-source storage layer designed to run on top of an existing data lake and improve its reliability, security, and performance. It supports ACID transactions, scalable metadata, unified streaming, and batch data processing.
-
-### Data Integration
-
-Data integration is the process of combining data from different sources into a single, unified view. Integration begins with the ingestion process, and includes steps such as cleansing, ETL mapping, and transformation. Data integration ultimately enables analytics tools to produce effective, actionable business intelligence.
-
-### Version control
-
-It help us to restore our data which we have either deleted or lost. We can use below sql query to see prev version or restore the previous data.
-
-- To get the list of version ```describe history employee1```
-- To call the version ```select * from employee1@v1``
-- To delete all recors ```delete from employee1```
-- To restore the table ```RESTORE TABLE employee1 to version as of 1``` remember this code will restore deleted value if and only if schema is preserved not worked wirh drop.
-
-### View 
-
-A view is a read-only object composed from one or more tables and views in a metastore. It resides in the third layer of Unity Catalog’s three-level namespace. A view can be created from tables and other views in multiple schemas and catalogs. Temp view doesn't exist in different sparksession and if you restart temp view will lost while global temp view exist in multiple session and will be persisted.
+window_spec = Window.partitionBy("department").orderBy("salary")
+df = df.withColumn("row_number", row_number().over(window_spec))
+```
