@@ -2,12 +2,12 @@
 
 Apache Spark is written in Scala programming language. To support Python with Spark, Apache Spark community released a tool, **PySpark**. Using PySpark, you can work with RDDs in Python programming language also. It is because of a library called **Py4j** that they are able to achieve this.
 
-## 🔹 Key Features
-- PySpark is a combination of Python and Apache Spark.
-- Highly scalable and supports parallel processing.
-- **100x** faster than Hadoop MapReduce.
-- Uses **RAM instead of disk**, which significantly increases processing speed.
-- Supports real-time data processing.
+### Some key points
+- PySpark is the combo of Python and Spark
+- Scalable
+- **100x faster** than Hadoop MapReduce
+- **10x faster** on disk
+- Uses **RAM instead of local drive**, which increases processing speed
 
 ## 🚀 Getting Started with PySpark
 ### 🔹 Installation
@@ -65,46 +65,21 @@ print(squared_rdd.collect())  # Output: [1, 4, 9, 16, 25]
 - **collect()** – Returns all elements
 - **take(n)** – Returns first `n` elements
 
+## 🏗️ Windows vs GroupBy
+| Feature | Windows | GroupBy |
+|---------|---------|---------|
+| Purpose | Used for row-based calculations, like ranking and moving averages. | Used for aggregations on groups of data. |
+| Scope | Works on a subset (window) of data within a group. | Works on entire groups of data. |
+| Example | ROW_NUMBER(), LAG(), LEAD() | SUM(), COUNT(), AVG() |
+
 ## 📊 Spark Components
-### 🔹 Spark Streaming
-Used for processing real-time streaming data.
-**Example:**
-```python
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
+- **Spark Core:** Core engine for distributed computing.
+- **Spark SQL:** Structured data processing using SQL.
+- **Spark Streaming:** Real-time data processing.
+- **MLlib:** Machine learning library.
+- **GraphX:** Graph computations.
 
-schema = StructType([StructField("id", IntegerType(), True)])
-df = spark.readStream.schema(schema).json("path/to/stream")
-df.writeStream.format("console").start().awaitTermination()
-```
-
-### 🔹 MLlib
-A machine learning library in Spark.
-**Example:**
-```python
-from pyspark.ml.classification import LogisticRegression
-from pyspark.ml.feature import VectorAssembler
-
-# Sample data
-data = [(0, 1.0, 2.0), (1, 2.0, 3.0)]
-df = spark.createDataFrame(data, ["label", "feature1", "feature2"])
-assembler = VectorAssembler(inputCols=["feature1", "feature2"], outputCol="features")
-df = assembler.transform(df)
-lr = LogisticRegression(featuresCol="features", labelCol="label")
-model = lr.fit(df)
-```
-
-### 🔹 Spark SQL
-Allows querying structured data using SQL.
-**Example:**
-```python
-df = spark.read.csv("data.csv", header=True, inferSchema=True)
-df.createOrReplaceTempView("table")
-spark.sql("SELECT * FROM table WHERE age > 30").show()
-```
-
-## 🛠️ Data Ingestion
-### 🔹 Batch Processing vs Real-time Processing
+## 🔄 Data Ingestion
 | Type | Description |
 |------|-------------|
 | **Batch Processing** | Collects and processes data in groups. Good for large datasets. |
@@ -124,6 +99,23 @@ df.write.format("parquet").save("output.parquet")
 |---------|---------------|-----------|
 | Data Type | Structured | Structured, Semi-structured, Unstructured |
 | Processing | Batch Processing | Batch & Real-time Processing |
+
+## 🏢 Data Warehouse vs Data Mart
+| Feature | Data Warehouse | Data Mart |
+|---------|---------------|-----------|
+| Scope | Enterprise-wide | Specific project or department |
+| Data Size | Large | Small |
+| Usage | Aggregated data for analytics | Department-specific data |
+
+## 🔄 Delta Lake vs Data Lake
+| Feature | Delta Lake | Data Lake |
+|---------|-----------|-----------|
+| ACID Transactions | Yes | No |
+| Schema Enforcement | Yes | No |
+| Metadata Handling | Advanced | Basic |
+
+## 🔗 Data Integration
+The process of combining data from multiple sources into a single, unified view for analytics and decision-making.
 
 ## 🔄 Version Control in Delta Lake
 ### 🔹 Restore previous data version
@@ -153,3 +145,30 @@ from pyspark.sql.functions import row_number
 window_spec = Window.partitionBy("department").orderBy("salary")
 df = df.withColumn("row_number", row_number().over(window_spec))
 ```
+
+## 📌 Additional Topics
+### 🔹 PySpark UDFs (User Defined Functions)
+```python
+from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
+
+def custom_function(value):
+    return value.upper()
+
+uppercase_udf = udf(custom_function, StringType())
+df = df.withColumn("uppercase_column", uppercase_udf(df["existing_column"]))
+```
+
+### 🔹 Handling Missing Values
+```python
+df = df.na.fill({"age": 0, "name": "Unknown"})
+df = df.na.drop()
+```
+
+### 🔹 Joining DataFrames
+```python
+df1.join(df2, df1.id == df2.id, "inner").show()
+```
+
+## 📌 Conclusion
+PySpark is a powerful tool for distributed computing. Understanding its core concepts, RDD operations, Spark SQL, MLlib, and streaming capabilities enables efficient data processing at scale.
