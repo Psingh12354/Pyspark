@@ -170,5 +170,92 @@ df = df.na.drop()
 df1.join(df2, df1.id == df2.id, "inner").show()
 ```
 
+# 🔍 PySpark `when` and `otherwise` – Conditional Logic in DataFrames
+
+## 📘 Overview
+
+In PySpark, conditional logic (similar to SQL's `CASE WHEN`) is implemented using the `when()` and `otherwise()` functions from `pyspark.sql.functions`.
+
+These functions are **Catalyst-optimized**, meaning they are faster and more efficient than using UDFs for conditional expressions.
+
+---
+
+## 📦 Import Required Functions
+
+You need to import from `pyspark.sql.functions`:
+
+```
+from pyspark.sql.functions import when, col
+```
+
+---
+
+## 🧠 Syntax
+
+```
+when(condition, value).otherwise(default_value)
+```
+
+- `condition`: A boolean expression (e.g. `col("age") > 18`)
+- `value`: Value to assign if the condition is true
+- `otherwise`: Fallback value if no `when` conditions match
+
+> ✅ You can **chain multiple `when()` clauses** for multiple conditions (like `if-elif-else` in Python).
+
+---
+
+## 🛠️ Use Case Example
+
+### 🎯 Goal: Categorize people based on age
+
+| Age  | Category |
+|------|----------|
+| <18  | Minor    |
+| 18–59| Adult    |
+| ≥60  | Senior   |
+
+```
+from pyspark.sql.functions import when, col
+
+df = df.withColumn(
+    "age_group",
+    when(col("age") < 18, "Minor")
+    .when((col("age") >= 18) & (col("age") < 60), "Adult")
+    .otherwise("Senior")
+)
+```
+
+---
+
+## 📊 Sample Output
+
+| name  | age | age_group |
+|--------|-----|-----------|
+| Alice  | 17  | Minor     |
+| Bob    | 25  | Adult     |
+| Cathy  | 62  | Senior    |
+
+---
+
+## 🧪 Multiple Conditions with `when()`
+
+You can chain `when()` like this:
+
+```
+when(condition1, value1)
+ .when(condition2, value2)
+ .otherwise(default_value)
+```
+
+---
+
+## ✅ Best Practices
+
+- Prefer `when`/`otherwise` over UDFs for performance.
+- Always use `col()` when referencing DataFrame columns inside conditions.
+- Conditions are evaluated in order — the **first match wins**.
+
+---
+
 ## 📌 Conclusion
 PySpark is a powerful tool for distributed computing. Understanding its core concepts, RDD operations, Spark SQL, MLlib, and streaming capabilities enables efficient data processing at scale.
