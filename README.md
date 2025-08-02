@@ -306,7 +306,7 @@ Both aim to make Spark SQL run as fast as possible.
 ## 🦾 Additional PySpark Features \& Best Practices
 
 - **Broadcast Joins:** Use `.broadcast()` for small tables to optimize joins
-- **Cache/Persist:** Use `.cache()` or `.persist()` to reuse DataFrames/RDDs in memory
+- **Cache/Persist/Unpersist:** Use `.cache()` or `.persist()` to reuse DataFrames/RDDs in memory, also make sure to free up the memory using unpersist
 - **Partitioning:** Repartition with `.repartition()` or `.coalesce()` for performance tuning
 - **Spark SQL Optimization:** Use `explain()` to view and optimize execution plans
 - **Reading Different Formats:** Supports CSV, Parquet, Avro, ORC, JSON, Delta, etc.
