@@ -253,6 +253,55 @@ when(cond1, val1).when(cond2, val2).otherwise(default)
 - Reference columns inside `when` with `col()`
 - Order matters: first match applies
 
+---
+
+## Catalyst Optimizer vs. AQE in Spark
+
+### Catalyst Optimizer
+
+- Spark’s static (pre-execution) query optimizer.
+- Makes the first, most efficient plan before running the query.
+- Uses rules and estimated stats to:
+    - Push filters down
+    - Remove unused columns
+    - Reorder joins for speed
+
+
+### Adaptive Query Execution (AQE)
+
+- Introduced in Spark 3.0. Runs during query execution.
+- Improves the plan as data is processed (runtime).
+- Can:
+    - Change join type (e.g., sort-merge to broadcast)
+    - Merge small partitions or split big ones
+    - Fix skewed data issues
+
+
+### Key Differences
+
+| Catalyst | AQE |
+| :-- | :-- |
+| Before execution | During execution |
+| Uses static stats | Uses real-time stats |
+| Makes initial plan | Adjusts plan as runs |
+
+### How do they work together?
+
+- Catalyst makes the first good plan.
+- AQE tweaks and improves it as the job runs based on real data.
+
+
+### Why use both?
+
+- Catalyst is good for most queries.
+- AQE is great for big or unpredictable data where things might change as the query runs.
+
+**Remember:**
+Catalyst = BEFORE running (static).
+AQE = WHILE running (dynamic).
+Both aim to make Spark SQL run as fast as possible.
+
+---
 
 ## 🦾 Additional PySpark Features \& Best Practices
 
