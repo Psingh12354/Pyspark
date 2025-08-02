@@ -320,3 +320,51 @@ PySpark empowers you to build robust, highly scalable data pipelines with Python
 
 Keep exploring: window functions, performance tuning, streaming, advanced joins, and integrations with cloud platforms for real-world, production ETL and analytics!
 
+---
+## Z-Ordering in Databricks
+
+- **What is Z-Ordering?**
+    - It arranges (sorts) your data files by values in certain columns, clustering similar values together inside Delta Lake tables.
+    - Makes queries much faster when you filter by those columns, because Spark can skip over lots of irrelevant data files.
+- **Why use it?**
+    - To make queries on big tables run faster and cheaper when filtering by high-cardinality columns (columns with many unique values).
+    - Especially helpful when you often query on more than one column (multi-column filters).
+- **How to use it?**
+    - Run the `OPTIMIZE` command and specify columns using `ZORDER BY`.
+    - Works well with columns you filter on most often.
+
+
+## Example
+
+Suppose you have an events table and most queries filter on `userId` and `eventDate`. You can Z-Order the data on those columns:
+
+```sql
+OPTIMIZE delta.`/mnt/delta/events`
+ZORDER BY (userId, eventDate)
+```
+
+Or in PySpark:
+
+```python
+spark.sql("OPTIMIZE delta.`/mnt/delta/events` ZORDER BY (userId, eventDate)")
+```
+
+
+## How Z-Ordering Works (Image)
+
+Imagine data scattered randomly vs. data organized by Z-order. Z-ordering clusters related values together so Spark can efficiently skip unrelated data blocks:
+
+*Diagram: On the left, files are mixed. On the right, files are organized so that queries filtering on z-ordered columns only scan a few files, skipping the rest.*
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/1e4df1ed-3009-47e7-b646-47ae8b525559" />
+
+
+## Quick Facts
+
+- Use Z-Ordering on high-cardinality columns often filtered in WHERE queries.
+- Typically, Z-Order on 1–3 columns.
+- Re-run OPTIMIZE after adding lots of new data.
+- Works best alongside partitioning (partition for broad categories, Z-Order for frequently filtered columns).
+
+**In summary:**
+Z-Ordering makes your queries faster and cheaper by organizing rows in files so Spark easily finds only the data you need. Use it for large Delta Lake tables where query performance matters, especially with multi-column filters.
+
