@@ -1,3 +1,4 @@
+
 # 📘 PySpark & Databricks – File I/O, Tables, JSON Handling, Nested Data, Parse Modes, Permissions
 
 ---
@@ -6,17 +7,34 @@
 
 PySpark allows reading data **directly from paths** or from **registered tables/views**.
 
-### (a) Path-Based Reads
+### (a) Path-Based Reads (with `.option()` / `.options()`)
 
 ```python
-df_csv     = spark.read.csv("/path/file.csv", header=True, inferSchema=True)
-df_json    = spark.read.json("/path/file.json")
-df_parquet = spark.read.parquet("/path/file.parquet")
-df_orc     = spark.read.orc("/path/file.orc")
-df_text    = spark.read.text("/path/file.txt")
+df_csv = spark.read.option("header", True) \
+                   .option("inferSchema", True) \
+                   .option("sep", ",") \
+                   .csv("/path/file.csv")
+
+df_json = spark.read.option("multiLine", True) \
+                    .option("mode", "PERMISSIVE") \
+                    .json("/path/file.json")
+
+df_parquet = spark.read.option("mergeSchema", True) \
+                        .parquet("/path/file.parquet")
+
+df_orc = spark.read.orc("/path/file.orc")
+
+df_text = spark.read.text("/path/file.txt")
 ```
 
-👉 Use when data is stored as **raw files** in storage (S3, ADLS, DBFS, GCS).
+✅ `.option()` → set single configuration.
+✅ `.options()` → set multiple configurations at once.
+Example:
+
+```python
+df_csv = spark.read.options(header=True, inferSchema=True, sep=",") \
+                   .csv("/path/file.csv")
+```
 
 ---
 
@@ -28,7 +46,7 @@ df2 = spark.table("my_db.my_table")        # shorthand
 df3 = spark.sql("SELECT * FROM my_db.my_table")  # SQL
 ```
 
-👉 Use when table is **registered in Hive/Unity Catalog metastore**.
+✅ Use when table is **registered in Hive/Unity Catalog metastore**.
 
 ---
 
@@ -42,38 +60,37 @@ df.createGlobalTempView("global_view")
 df_glob = spark.table("global_temp.global_view")  # cluster-wide
 ```
 
-👉 Useful when you want to run **SQL on DataFrames** without saving to disk.
+✅ Useful when you want to run **SQL on DataFrames** without saving to disk.
 
 ---
 
-## 🔹 2. File Formats Supported
+## 🔹 2. File Formats Supported (with `.option()`)
 
-| Format            | Read Example                                       | Write Example                                    | Features                            | Best Use Case         |
-| ----------------- | -------------------------------------------------- | ------------------------------------------------ | ----------------------------------- | --------------------- |
-| **CSV**           | `spark.read.csv("file.csv", header=True)`          | `df.write.csv("out.csv", header=True)`           | Simple, human-readable, flexible    | Small data, exports   |
-| **JSON**          | `spark.read.json("file.json")`                     | `df.write.json("out.json")`                      | Handles nested/array data           | API logs, events      |
-| **Parquet**       | `spark.read.parquet("file.parquet")`               | `df.write.parquet("out.parquet")`                | Columnar, compressed, fast          | Analytics queries     |
-| **ORC**           | `spark.read.orc("file.orc")`                       | `df.write.orc("out.orc")`                        | Hive-optimized                      | Hadoop/Hive workloads |
-| **Avro**          | `spark.read.format("avro").load("file.avro")`      | `df.write.format("avro").save("out.avro")`       | Schema evolution support            | Streaming, Kafka      |
-| **Text**          | `spark.read.text("file.txt")`                      | `df.write.text("out.txt")`                       | Line-based                          | Logs, plain text      |
-| **Binary**        | `spark.read.format("binaryFile").load("/images")`  | ❌                                                | Reads binary blobs                  | Image/ML pipelines    |
-| **Delta Lake** 🟢 | `spark.read.format("delta").load("/delta/events")` | `df.write.format("delta").save("/delta/events")` | ACID, schema evolution, time travel | Databricks Lakehouse  |
-
-👉 **Best practice:** Use **Parquet or Delta** for large-scale analytics because they’re columnar and compressed.
+| Format            | Read Example                                      | Write Example                  | Features                            | Best Use Case         |
+| ----------------- | ------------------------------------------------- | ------------------------------ | ----------------------------------- | --------------------- |
+| **CSV**           | `.option("header",True).csv()`                    | `.option("header",True).csv()` | Simple, human-readable, flexible    | Small data, exports   |
+| **JSON**          | `.option("multiLine",True).json()`                | `.json()`                      | Handles nested/array data           | API logs, events      |
+| **Parquet**       | `.option("mergeSchema",True).parquet()`           | `.parquet()`                   | Columnar, compressed, fast          | Analytics queries     |
+| **ORC**           | `.orc()`                                          | `.orc()`                       | Hive-optimized                      | Hadoop/Hive workloads |
+| **Avro**          | `.format("avro").load()`                          | `.format("avro").save()`       | Schema evolution support            | Streaming, Kafka      |
+| **Text**          | `.text()`                                         | `.text()`                      | Line-based                          | Logs, plain text      |
+| **Delta Lake** 🟢 | `.format("delta").option("versionAsOf",3).load()` | `.format("delta").save()`      | ACID, schema evolution, time travel | Databricks Lakehouse  |
 
 ---
 
-## 🔹 3. Handling JSON & Nested Data
+## 🔹 3. Handling JSON & Nested Data (with `.option()`)
 
-JSON often contains **nested structures (structs, arrays, maps)**. Spark provides tools to flatten or explode them.
+```python
+df = spark.read.option("multiLine", True) \
+               .option("mode", "PERMISSIVE") \
+               .json("/path/data.json")
+```
+
+---
 
 ### (a) Load Nested JSON
 
-```python
-df = spark.read.option("multiLine", True).json("/path/data.json")
-```
-
-👉 `multiLine=True` helps when JSON spans multiple lines.
+`.option("multiLine", True)` → required when JSON spans multiple lines.
 
 ---
 
@@ -83,8 +100,6 @@ df = spark.read.option("multiLine", True).json("/path/data.json")
 df.select("id", "address.city", "address.zip").show()
 ```
 
-👉 Use **dot notation** to drill into nested structs.
-
 ---
 
 ### (c) Explode Arrays
@@ -93,8 +108,6 @@ df.select("id", "address.city", "address.zip").show()
 from pyspark.sql.functions import explode
 df.select("id", explode("phones").alias("phone")).show()
 ```
-
-👉 **Explode** converts array elements into separate rows.
 
 ---
 
@@ -113,41 +126,14 @@ schema = StructType([
     StructField("phones", ArrayType(StringType()), True)
 ])
 
-df = spark.read.schema(schema).json("/path/data.json")
+df = spark.read.schema(schema) \
+               .option("multiLine", True) \
+               .json("/path/data.json")
 ```
-
-👉 Explicit schema is **faster** and avoids Spark’s expensive `inferSchema`.
 
 ---
 
-### (e) Working with Structs, Arrays, Maps
-
-* **Struct (nested object)**
-
-```python
-from pyspark.sql.functions import col
-df.select(col("address.city").alias("city")).show()
-```
-
-* **Array (list of values)**
-
-```python
-from pyspark.sql.functions import size
-df.select("id", size("phones").alias("phone_count")).show()
-```
-
-* **Map (key-value pairs)**
-
-```python
-# Example: {"properties": {"height":"5.6", "weight":"60"}}
-df.select("properties.height", "properties.weight").show()
-```
-
-👉 Think of **Struct = object**, **Array = list**, **Map = dictionary**.
-
----
-
-### (f) Flattening Nested JSON
+### (e) Flatten Nested JSON
 
 ```python
 from pyspark.sql.functions import explode, col
@@ -161,41 +147,30 @@ df_flat = df.select(
 )
 ```
 
-👉 Convert nested structures into **flat tabular form**.
-
 ---
 
 ## 🔹 4. Parse Modes & Options
 
-When reading **text-based formats (CSV, JSON)**, Spark provides parse modes.
-
 ### JSON & CSV Parse Modes
-
-| Mode                     | Behavior                                          |
-| ------------------------ | ------------------------------------------------- |
-| **PERMISSIVE** (default) | Keeps corrupt records in `_corrupt_record` column |
-| **DROPMALFORMED**        | Skips malformed rows entirely                     |
-| **FAILFAST**             | Aborts job if any malformed row is found          |
 
 ```python
 df = spark.read.option("mode", "DROPMALFORMED").json("/path/file.json")
 ```
 
-👉 Use **PERMISSIVE** in production (safe), **FAILFAST** in testing (strict).
+| Mode              | Behavior                                          |
+| ----------------- | ------------------------------------------------- |
+| **PERMISSIVE**    | Keeps corrupt records in `_corrupt_record` column |
+| **DROPMALFORMED** | Skips malformed rows                              |
+| **FAILFAST**      | Stops execution if any malformed row found        |
 
 ---
 
 ### CSV Extra Options
 
-* `header=True` → first row as header
-* `sep="|"` → delimiter
-* `inferSchema=True` → auto column types
-* `quote='"'`, `escape='\\'` → handle quoted values
-* `multiLine=True` → parse multi-line CSVs
-
 ```python
 df = spark.read.option("header", True) \
                .option("sep", "|") \
+               .option("inferSchema", True) \
                .csv("/path/data.csv")
 ```
 
@@ -203,116 +178,40 @@ df = spark.read.option("header", True) \
 
 ### JSON Extra Options
 
-* `multiLine=True` → multi-line JSON
-* `allowSingleQuotes=True` → accept `'key':'value'`
-* `allowUnquotedFieldNames=True` → JSON keys without quotes
-* `primitivesAsString=True` → numbers/booleans as strings
-* `dropFieldIfAllNull=True` → drop all-null fields
-
 ```python
 df = spark.read.option("multiLine", True) \
+               .option("allowSingleQuotes", True) \
+               .option("allowUnquotedFieldNames", True) \
                .option("mode", "FAILFAST") \
                .json("/path/data.json")
 ```
 
 ---
 
-### Parquet & ORC
-
-* **Schema-driven** → fail if mismatch (no `_corrupt_record`).
-* Options: `mergeSchema=True`, filter pushdown.
-
-### Delta Lake
-
-* **ACID transactions**
-* Schema enforcement (`overwriteSchema=True`)
-* Schema evolution (`mergeSchema=True`)
-* No corrupt record handling.
-
----
-
-## 🔹 5. Delta Lake Features
-
-Delta = Parquet + ACID + Time Travel.
+### Parquet & ORC Options
 
 ```python
-# Write as Delta
-df.write.format("delta").mode("overwrite").save("/mnt/delta/events")
-
-# Time Travel
-df_old = spark.read.format("delta").option("versionAsOf", 3).load("/mnt/delta/events")
-
-# Merge (Upsert)
-from delta.tables import DeltaTable
-deltaTable = DeltaTable.forPath(spark, "/mnt/delta/events")
-deltaTable.alias("t").merge(
-    df.alias("s"),
-    "t.id = s.id"
-).whenMatchedUpdateAll() \
- .whenNotMatchedInsertAll() \
- .execute()
+df = spark.read.option("mergeSchema", True).parquet("/path/data.parquet")
 ```
 
 ---
 
-## 🔹 6. Write Modes
+### Delta Lake Options
 
 ```python
-df.write.mode("overwrite").parquet("/output")
-df.write.mode("append").json("/output")
+df = spark.read.format("delta") \
+               .option("versionAsOf", 3) \
+               .load("/mnt/delta/events")
 ```
 
-* **overwrite** → Replace old data
-* **append** → Add new data
-* **ignore** → Do nothing if exists
-* **errorifexists** → Throw error if exists
-
 ---
 
-## 🔹 7. Permissions & Security in Databricks
+💡 **Summary:**
 
-* **Table-level** (SQL)
-
-```sql
-GRANT SELECT ON TABLE my_db.my_table TO `user1`;
-GRANT MODIFY ON TABLE my_db.my_table TO `analyst_group`;
-```
-
-* **Storage-level**
-
-  * AWS → IAM roles, S3 bucket policies
-  * Azure → RBAC, ACLs, SAS tokens
-  * GCP → IAM roles
-
-* **Databricks-specific**
-
-  * Unity Catalog → central governance
-  * Supports **row/column-level security**
-  * Use `dbutils.secrets.get()` for keys & tokens
+* `.option()` / `.options()` make reads/writes flexible & configurable.
+* Use **path-based** reads for direct files, **table-based** reads for Hive/Unity Catalog tables, and **views** for temporary SQL access.
+* Know **different file formats**, their options, and **parse modes**.
+* For **nested JSON**, use `.option("multiLine", True)` and schema definitions.
+* For **Delta Lake**, use `.format("delta")` with time travel options.
 
 ---
-
-## 🔹 8. Format Comparison (Quick Interview Guide)
-
-| Feature           | CSV         | JSON      | Parquet   | ORC          | Avro      | Delta Lake |
-| ----------------- | ----------- | --------- | --------- | ------------ | --------- | ---------- |
-| Human-readable    | ✅           | ✅         | ❌         | ❌            | ❌         | ❌          |
-| Compression       | ❌           | ❌         | ✅         | ✅            | ✅         | ✅          |
-| Schema Evolution  | ❌           | Limited   | ✅         | ✅            | ✅         | ✅          |
-| Nested Data       | ❌           | ✅         | ✅         | ✅            | ✅         | ✅          |
-| ACID Transactions | ❌           | ❌         | ❌         | ❌            | ❌         | ✅          |
-| Time Travel       | ❌           | ❌         | ❌         | ❌            | ❌         | ✅          |
-| Parse Modes       | ✅           | ✅         | ❌         | ❌            | ❌         | ❌          |
-| Best Use Case     | Small files | Logs/APIs | Analytics | Hive queries | Streaming | Lakehouse  |
-
----
-
-✅ **Quick Takeaways for Interview:**
-
-* Use **PERMISSIVE/DROPMALFORMED/FAILFAST** only for text-based formats (CSV, JSON).
-* **Parquet, ORC, Delta** → strongly typed, fail on mismatch.
-* Flatten nested JSON using **dot notation, explode, and schema definition**.
-* Prefer **Delta Lake** in Databricks for ACID + governance.
-
----
-
