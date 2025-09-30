@@ -368,3 +368,92 @@ Imagine data scattered randomly vs. data organized by Z-order. Z-ordering cluste
 **In summary:**
 Z-Ordering makes your queries faster and cheaper by organizing rows in files so Spark easily finds only the data you need. Use it for large Delta Lake tables where query performance matters, especially with multi-column filters.
 
+----
+Alright 😄 — I’ll make this as **compact PySpark date function notes** for easy memorization, with imports, categories, purpose, and examples.
+
+---
+
+## 📚 **PySpark Date Functions — Quick Notes**
+
+### **1. Imports**
+
+```python
+from pyspark.sql.functions import (
+    to_date, to_timestamp, current_date, current_timestamp,
+    date_format, year, month, dayofmonth, dayofweek,
+    datediff, add_months, date_add, date_sub,
+    months_between, trunc, last_day, next_day
+)
+```
+
+---
+
+### **2. Conversion Functions**
+
+| Function                    | Purpose                        | Example                                                      |
+| --------------------------- | ------------------------------ | ------------------------------------------------------------ |
+| `to_date(col, format)`      | Convert string → DateType      | `to_date("2025-09-30", "yyyy-MM-dd")`                        |
+| `to_timestamp(col, format)` | Convert string → TimestampType | `to_timestamp("2025-09-30 12:30:00", "yyyy-MM-dd HH:mm:ss")` |
+
+---
+
+### **3. Current Date / Time**
+
+| Function              | Purpose               | Example               |
+| --------------------- | --------------------- | --------------------- |
+| `current_date()`      | Get today’s date      | `current_date()`      |
+| `current_timestamp()` | Get current timestamp | `current_timestamp()` |
+
+---
+
+### **4. Extraction Functions**
+
+| Function          | Purpose                           | Example              |
+| ----------------- | --------------------------------- | -------------------- |
+| `year(col)`       | Extract year                      | `year("date")`       |
+| `month(col)`      | Extract month                     | `month("date")`      |
+| `dayofmonth(col)` | Extract day of month              | `dayofmonth("date")` |
+| `dayofweek(col)`  | Extract day of week (1=Sun…7=Sat) | `dayofweek("date")`  |
+
+---
+
+### **5. Date Arithmetic Functions**
+
+| Function                     | Purpose                | Example                                      |
+| ---------------------------- | ---------------------- | -------------------------------------------- |
+| `datediff(end, start)`       | Days between two dates | `datediff(current_date(), "date")`           |
+| `date_add(col, n)`           | Add days               | `date_add("date", 7)`                        |
+| `date_sub(col, n)`           | Subtract days          | `date_sub("date", 7)`                        |
+| `add_months(col, n)`         | Add months             | `add_months("date", 2)`                      |
+| `months_between(end, start)` | Months between dates   | `months_between("2025-09-30", "2025-01-01")` |
+
+---
+
+### **6. Formatting Functions**
+
+| Function                   | Purpose               | Example                             |
+| -------------------------- | --------------------- | ----------------------------------- |
+| `date_format(col, format)` | Format date to string | `date_format("date", "yyyy/MM/dd")` |
+
+---
+
+### **7. Other Useful Date Functions**
+
+| Function                   | Purpose                     | Example                   |
+| -------------------------- | --------------------------- | ------------------------- |
+| `trunc(col, format)`       | Truncate date to month/year | `trunc("date", "MM")`     |
+| `last_day(col)`            | Last day of month           | `last_day("date")`        |
+| `next_day(col, dayOfWeek)` | Next occurrence of weekday  | `next_day("date", "Mon")` |
+
+---
+
+### **8. Quick Tips**
+
+* Always check your date format before using `to_date()` or `to_timestamp()`.
+* Use `datediff()` for days difference and `months_between()` for month difference.
+* Use `add_months()` and `date_add()` for arithmetic adjustments.
+* Use `date_format()` for reporting and exporting dates in specific formats.
+* Use `trunc()` for grouping by month/year in aggregations.
+
+---
+
