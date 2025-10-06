@@ -1,7 +1,3 @@
-Perfect ✅ — here’s a **complete and easy-to-understand Delta Lake notes guide** tailored for **Databricks / PySpark interviews** and real-world projects.
-It’s written in a **GitHub README-style format**, with **examples, code, and explanations** — just like your previous DP-900 notes.
-
----
 
 # 🧠 Delta Lake — Complete Notes (with Examples)
 
