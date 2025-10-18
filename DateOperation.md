@@ -19,6 +19,30 @@ PySpark (via `pyspark.sql.functions`) provides **built-in functions** for date m
 
 ---
 
+## 📋 **Common Date Format Patter**
+
+| **Pattern**               | **Example Output**        | **Description**              |
+| ------------------------- | ------------------------- | ---------------------------- |
+| `yyyy-MM-dd`              | `2025-10-18`              | Year-Month-Day (ISO default) |
+| `dd-MM-yyyy`              | `18-10-2025`              | Day-Month-Year               |
+| `MM/dd/yyyy`              | `10/18/2025`              | U.S. style Month/Day/Year    |
+| `yyyy/MM/dd`              | `2025/10/18`              | Alternate Year/Month/Day     |
+| `yyyyMMdd`                | `20251018`                | Compact numeric format       |
+| `dd-MMM-yyyy`             | `18-Oct-2025`             | Abbreviated month name       |
+| `dd-MMMM-yyyy`            | `18-October-2025`         | Full month name              |
+| `E`                       | `Sat`                     | Short day of week            |
+| `EEEE`                    | `Saturday`                | Full day of week             |
+| `HH:mm:ss`                | `14:45:32`                | 24-hour time                 |
+| `hh:mm:ss a`              | `02:45:32 PM`             | 12-hour time with AM/PM      |
+| `yyyy-MM-dd HH:mm:ss`     | `2025-10-18 14:45:32`     | Full date + time             |
+| `yyyy-MM-dd'T'HH:mm:ss`   | `2025-10-18T14:45:32`     | ISO 8601-style               |
+| `yyyy-MM-dd HH:mm:ss.SSS` | `2025-10-18 14:45:32.123` | Date + milliseconds          |
+| `w`                       | `42`                      | Week number in year          |
+| `D`                       | `291`                     | Day number in year           |
+| `Q`                       | `4`                       | Quarter (1–4)                |
+| `YYYY-‘Q’Q`               | `2025-Q4`                 | Year + quarter label         |
+
+---
 ## 🧩 **Important Notes About Date Columns**
 
 1. **DateType vs StringType**
