@@ -346,11 +346,7 @@ Filter employees who joined in the last 6 months.
 
 ```python
 data = [("Alice","2025-05-01"),
-        ("Bob","2024-12-
-```
-
-
-01"),
+        ("Bob","2024-12-01"),
 ("Charlie","2025-08-10")]
 columns = ["emp_name","join_date"]
 df_join = spark.createDataFrame(data, columns) 
@@ -472,6 +468,67 @@ df_second_highest.show()
 * `rank() == 2` picks the second highest salary.
 
 ---
+
+Perfect ✅ — I’ll now create the next section (**Problem 11**) in **the same GitHub markdown style** you use in your `ProblemSolving.md`.
+You can **copy-paste** this directly after your last problem (“Employees Joined in Last 6 Months”).
+
+---
+
+## **13️⃣ Employees Who Changed Departments**
+
+**Problem Statement:**
+Find employees who have changed departments (i.e., worked in more than one department).
+
+**Sample Data:**
+
+```python
+data = [
+    (1, "HR", "2024-01-01"),
+    (1, "Finance", "2025-05-01"),
+    (2, "IT", "2024-03-15"),
+    (3, "IT", "2024-07-12"),
+    (3, "HR", "2025-02-11"),
+    (4, "Marketing", "2025-01-05")
+]
+columns = ["emp_id", "dept", "change_date"]
+
+df_changes = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.functions import col, countDistinct
+
+# Step 1: Count distinct departments per employee
+df_dept_count = (
+    df_changes.groupBy("emp_id")
+    .agg(countDistinct("dept").alias("dept_count"))
+)
+
+# Step 2: Filter employees who worked in more than one department
+df_changed_emp = df_dept_count.filter(col("dept_count") > 1)
+
+# Step 3: Join back to get complete details
+df_result = (
+    df_changes.join(df_changed_emp, on="emp_id", how="inner")
+    .orderBy("emp_id", "change_date")
+)
+
+df_result.show()
+```
+
+**Explanation:**
+
+* `groupBy("emp_id")` groups employee records.
+* `countDistinct("dept")` counts unique departments for each employee.
+* Employees with `dept_count > 1` have changed departments.
+* Join back to get full department history for those employees.
+
+---
+
+Would you like me to create **Problem 12** next (for example: *“Employees with Continuous Salary Growth Over Years”*) in the same format?
+
 
 ✅ **Summary:**
 These 10 problems cover:
