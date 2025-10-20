@@ -373,6 +373,106 @@ df_recent.show()
 
 ---
 
+Absolutely ✅ — following the same GitHub markdown style, here are **Problem 12** and **Problem 13** that you can append directly after Problem 11 in your `ProblemSolving.md` file.
+
+---
+
+## **11️⃣ Percentage Contribution of Each Category to Total Sales**
+
+**Problem Statement:**
+For each region, calculate the percentage contribution of each category’s sales to the total sales of that region.
+
+**Sample Data:**
+
+```python
+data = [
+    ("East", "Furniture", 2000),
+    ("East", "Electronics", 3000),
+    ("West", "Furniture", 4000),
+    ("West", "Electronics", 6000),
+    ("North", "Furniture", 1500),
+    ("North", "Electronics", 2500)
+]
+columns = ["region", "category", "sales"]
+
+df_sales = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.functions import col, sum
+
+# Step 1: Calculate total sales per region
+df_total_sales = (
+    df_sales.groupBy(col("region").alias("region1"))
+    .agg(sum("sales").alias("sum_sales"))
+)
+
+# Step 2: Join back to original DataFrame
+df_result = (
+    df_sales.join(df_total_sales, df_sales.region == df_total_sales.region1, how="inner")
+    .withColumn("percent_of_total", (col("sales") * 100) / col("sum_sales"))
+    .drop("sum_sales", "region1")
+    .dropDuplicates()
+)
+
+df_result.show()
+```
+
+**Explanation:**
+
+* `groupBy("region")` aggregates total sales per region.
+* Join allows calculation of each category’s percentage contribution.
+* `percent_of_total = sales * 100 / total_sales`.
+* `dropDuplicates()` ensures no repeated rows.
+
+---
+
+## **12️ Second Highest Salary per Department**
+
+**Problem Statement:**
+Find the employee with the second highest salary in each department. Skip departments with only one employee.
+
+**Sample Data:**
+
+```python
+data = [
+    (1, "Alice", "HR", 50000),
+    (2, "Bob", "HR", 60000),
+    (3, "Charlie", "IT", 90000),
+    (4, "David", "IT", 85000),
+    (5, "Eve", "Finance", 75000),
+    (6, "Frank", "Finance", 70000)
+]
+columns = ["emp_id", "emp_name", "dept", "salary"]
+
+df_salary = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.window import Window
+from pyspark.sql.functions import col, rank
+
+# Step 1: Define window partitioned by department, ordered by salary descending
+winSpec = Window.partitionBy("dept").orderBy(col("salary").desc())
+
+# Step 2: Rank employees and filter for rank 2
+df_second_highest = df_salary.withColumn("rank", rank().over(winSpec)).filter(col("rank") == 2)
+
+df_second_highest.show()
+```
+
+**Explanation:**
+
+* `Window.partitionBy("dept")` ensures ranking happens within each department.
+* `orderBy("salary").desc()` ranks employees by salary descending.
+* `rank() == 2` picks the second highest salary.
+
+---
+
 ✅ **Summary:**
 These 10 problems cover:
 
