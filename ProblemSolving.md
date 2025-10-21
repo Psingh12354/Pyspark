@@ -524,20 +524,223 @@ df_result.show()
 * `countDistinct("dept")` counts unique departments for each employee.
 * Employees with `dept_count > 1` have changed departments.
 * Join back to get full department history for those employees.
+  
+---
+
+## **14️⃣ Find Duplicate Records in a DataFrame**
+
+**Problem Statement:**
+Identify duplicate rows in a PySpark DataFrame.
+
+**Sample Data:**
+
+```python
+data = [
+    (1, "Alice", "HR"),
+    (2, "Bob", "IT"),
+    (3, "Alice", "HR"),
+    (4, "David", "Finance"),
+    (5, "Bob", "IT")
+]
+columns = ["emp_id", "emp_name", "dept"]
+
+df_duplicates = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.functions import col
+
+df_dup_result = (
+    df_duplicates.groupBy(df_duplicates.columns)
+    .count()
+    .filter(col('count') > 1)
+)
+
+df_dup_result.show()
+```
+
+**Explanation:**
+
+* `groupBy(df.columns)` groups the data by all columns to identify identical rows.
+* `.count()` counts occurrences for each unique combination.
+* `.filter(col('count') > 1)` keeps only duplicate rows.
 
 ---
 
-Would you like me to create **Problem 12** next (for example: *“Employees with Continuous Salary Growth Over Years”*) in the same format?
+## **15️⃣ Rolling 3-Day Sales Sum**
 
+**Problem Statement:**
+For each store, calculate the 3-day rolling sum of sales.
+
+**Sample Data:**
+
+```python
+data = [
+    ("StoreA", "2025-01-01", 100),
+    ("StoreA", "2025-01-02", 150),
+    ("StoreA", "2025-01-03", 200),
+    ("StoreA", "2025-01-04", 300),
+    ("StoreB", "2025-01-01", 400),
+    ("StoreB", "2025-01-02", 100),
+    ("StoreB", "2025-01-03", 300)
+]
+columns = ["store", "date", "sales"]
+
+df_sales = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.window import Window
+from pyspark.sql.functions import sum, col
+
+winSpec = Window.partitionBy('store').orderBy('date').rowsBetween(-2, 0)
+
+df_sales = df_sales.withColumn(
+    "sales_3days",
+    sum(col("sales")).over(winSpec)
+)
+
+df_sales.show()
+```
+
+**Explanation:**
+
+* `partitionBy('store')` → ensures calculations are store-specific.
+* `orderBy('date')` → defines temporal order for rolling logic.
+* `rowsBetween(-2, 0)` → considers the **current and previous 2 rows** (3-day window).
+* `sum(col('sales')).over(winSpec)` → computes rolling total sales.
+
+---
+
+## **16️⃣ Cumulative Sales by Date per Region**
+
+**Problem Statement:**
+Calculate cumulative (running total) sales for each region by date.
+
+**Sample Data:**
+
+```python
+data = [
+    ("East", "2025-01-01", 1000),
+    ("East", "2025-01-02", 1500),
+    ("East", "2025-01-03", 2000),
+    ("West", "2025-01-01", 1200),
+    ("West", "2025-01-02", 800),
+    ("West", "2025-01-03", 1600)
+]
+columns = ["region", "date", "sales"]
+
+df_sales_cum = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.window import Window
+from pyspark.sql.functions import sum, col
+
+winSpec = Window.partitionBy('region').orderBy('date') \
+    .rowsBetween(Window.unboundedPreceding, Window.currentRow)
+
+df_sales_cum = df_sales_cum.withColumn(
+    'sales_cum',
+    sum(col('sales')).over(winSpec)
+)
+
+df_sales_cum.show()
+```
+
+**Explanation:**
+
+* `unboundedPreceding` → starts from the first record in the partition.
+* `currentRow` → ends at the current record.
+* This gives a **running total** per region across dates.
+
+---
+
+## **17️⃣ Compare Employee Salary to Department Average**
+
+**Problem Statement:**
+For each employee, compare their salary to their department’s average and classify as **Above Avg**, **Below Avg**, or **Average**.
+
+**Sample Data:**
+
+```python
+data = [
+    (1, "Alice", "HR", 60000),
+    (2, "Bob", "HR", 50000),
+    (3, "Charlie", "IT", 90000),
+    (4, "David", "IT", 85000),
+    (5, "Eve", "Finance", 75000)
+]
+columns = ["emp_id", "emp_name", "dept", "salary"]
+
+df_salary_comp = spark.createDataFrame(data, columns)
+```
+
+**Solution:**
+
+```python
+from pyspark.sql.window import Window
+from pyspark.sql.functions import avg, col, when
+
+winSpec = Window.partitionBy('dept')
+
+df_salary_comp = df_salary_comp.withColumn(
+    'avg_salary',
+    avg(col('salary')).over(winSpec)
+)
+
+df_salary_comp = df_salary_comp.withColumn(
+    'salaryClassification',
+    when(col('salary') > col('avg_salary'), 'Above Avg')
+    .when(col('salary') < col('avg_salary'), 'Below Avg')
+    .otherwise('Average')
+)
+
+df_salary_comp.show()
+```
+
+**Explanation:**
+
+* `avg('salary').over(winSpec)` → computes average salary per department.
+* `when().otherwise()` → classifies each employee based on their department’s average.
+* Combines **window aggregation** and **conditional transformation** in one flow.
+
+---
 
 ✅ **Summary:**
-These 10 problems cover:
+These **17 PySpark problems** cover a wide range of practical data engineering and analytics scenarios.
 
-1. Window functions (`rank`, `row_number`, `sum over window`)
-2. Null handling & average imputation
-3. Exploding arrays
-4. Date calculations
-5. Aggregations (`groupBy`, `agg`)
-6. Categorization with `when`
-7. Flattening JSON
+### 🔹 **Core Transformations**
+
+1. Window functions (`rank`, `row_number`, `sum over window`, `avg over window`)
+2. Null handling & average imputation using `when()` + `avg()`
+3. Conditional logic and categorization with `when().otherwise()`
+4. Date-based calculations and filters (`months_between`, `current_date`)
+5. Aggregations (`groupBy`, `agg`, `sum`, `avg`, `count`)
+6. Exploding nested arrays using `explode()`
+7. Flattening JSON and nested structures
+
+### 🔹 **Window Function Applications**
+
+8. Rolling and cumulative aggregations using `rowsBetween()` and `unboundedPreceding`
+9. Department-level salary comparison using `avg().over(Window.partitionBy())`
+10. Rank-based filtering (Top N per group)
+11. Duplicate detection using `groupBy().count()` and window logic
+12. Lag/lead-based comparisons (day-over-day trends)
+
+### 🔹 **Advanced Problem-Solving**
+
+13. Calculating running totals by region or store
+14. Multi-step transformations combining `join`, `filter`, and window analytics
+15. Conditional classification (Above/Below/Average salary)
+16. Rolling 3-day window calculations
+17. Comparing values to group-level averages
+
+
 
