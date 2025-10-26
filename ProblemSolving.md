@@ -713,6 +713,94 @@ df_salary_comp.show()
 
 ---
 
+
+## **18️⃣ Sales Trend Analysis – Using Two Window Functions**
+
+**Problem Statement:**
+Given daily regional sales data, perform both **ranking** and **moving average** analytics:
+
+1. For each `region`, rank the sales days by `total_sales` (highest = rank 1).
+2. For each `region`, compute a **3-day moving average** of `total_sales` (including the current day and previous two days, ordered by `sales_date`).
+3. Combine both results so that each row in the output shows: `region`, `sales_date`, `total_sales`, `rank_in_region`, and `moving_avg_sales`.
+
+**Sample Data:**
+
+| region | sales_date | total_sales |
+| ------ | ---------- | ----------- |
+| North  | 2024-01-01 | 1000        |
+| North  | 2024-01-02 | 1200        |
+| North  | 2024-01-03 | 1500        |
+| North  | 2024-01-04 | 1100        |
+| South  | 2024-01-01 | 800         |
+| South  | 2024-01-02 | 950         |
+| South  | 2024-01-03 | 700         |
+| South  | 2024-01-04 | 1100        |
+
+---
+
+**Solution:**
+
+```python
+from pyspark.sql import SparkSession, functions as F
+from pyspark.sql.window import Window
+
+spark = SparkSession.builder.appName("SalesWindowExample").getOrCreate()
+
+# Create sample DataFrame
+data = [
+    ("North", "2024-01-01", 1000.0),
+    ("North", "2024-01-02", 1200.0),
+    ("North", "2024-01-03", 1500.0),
+    ("North", "2024-01-04", 1100.0),
+    ("South", "2024-01-01", 800.0),
+    ("South", "2024-01-02", 950.0),
+    ("South", "2024-01-03", 700.0),
+    ("South", "2024-01-04", 1100.0)
+]
+columns = ["region", "sales_date", "total_sales"]
+sales_df = spark.createDataFrame(data, columns)
+sales_df = sales_df.withColumn("sales_date", F.to_date("sales_date"))
+
+# 1️⃣ Rank by total_sales within each region
+win_rank = Window.partitionBy("region").orderBy(F.col("total_sales").desc())
+sales_ranked = sales_df.withColumn("rank_in_region", F.rank().over(win_rank))
+
+# 2️⃣ Compute 3-day moving average (ordered by date)
+win_moving = Window.partitionBy("region").orderBy(F.col("sales_date").asc()).rowsBetween(-2, 0)
+sales_avg = sales_df.withColumn("moving_avg_sales", F.avg("total_sales").over(win_moving))
+
+# 3️⃣ Combine both outputs
+final_df = (
+    sales_ranked.join(sales_avg, ["region", "sales_date"], "inner")
+    .select("region", "sales_date", "total_sales", "rank_in_region", "moving_avg_sales")
+    .orderBy("region", "sales_date")
+)
+
+final_df.show()
+```
+
+**Expected Output:**
+
+| region | sales_date | total_sales | rank_in_region | moving_avg_sales |
+| ------ | ---------- | ----------- | -------------- | ---------------- |
+| North  | 2024-01-01 | 1000        | 4              | 1000             |
+| North  | 2024-01-02 | 1200        | 3              | 1100             |
+| North  | 2024-01-03 | 1500        | 1              | 1233.3           |
+| North  | 2024-01-04 | 1100        | 2              | 1266.7           |
+| South  | 2024-01-01 | 800         | 3              | 800              |
+| South  | 2024-01-02 | 950         | 2              | 875              |
+| South  | 2024-01-03 | 700         | 4              | 816.7            |
+| South  | 2024-01-04 | 1100        | 1              | 916.7            |
+
+
+**Explanation:**
+
+* **Window 1 (Ranking):** Ranks sales days within each region by `total_sales` in descending order.
+* **Window 2 (Moving Average):** Computes a rolling 3-day average for each region using chronological order (`sales_date`) and `rowsBetween(-2, 0)`.
+* **Join/Combine:** Merges both window computations so each row has rank and moving average together.
+
+---
+
 ✅ **Summary:**
 These **17 PySpark problems** cover a wide range of practical data engineering and analytics scenarios.
 
